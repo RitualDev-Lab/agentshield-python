@@ -2,7 +2,7 @@
 
 # AgentShield Python SDK 🛡️
 
-[![PyPI version](https://img.shields.io/badge/PyPI-agentshield-3776AB?style=for-the-badge&logo=pypi&logoColor=white)](https://pypi.org/project/agentshield/)
+[![PyPI version](https://img.shields.io/badge/PyPI-agentshield--defense-3776AB?style=for-the-badge&logo=pypi&logoColor=white)](https://pypi.org/project/agentshield-defense/)
 [![Python 3.10+](https://img.shields.io/badge/Python-3.10%2B-blue?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](https://opensource.org/licenses/MIT)
 [![Interactive Playground](https://img.shields.io/badge/Playground-Live%20Demo-00F59B?style=for-the-badge)](https://ritualdev.in/playground)
@@ -33,8 +33,10 @@
 ## 📦 Installation
 
 ```bash
-pip install agentshield
+pip install agentshield-defense
 ```
+
+*Note: In code, import as standard `import agentshield` or `from agentshield import shield`.*
 
 ---
 

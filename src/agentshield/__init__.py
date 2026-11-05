@@ -11,7 +11,7 @@ from agentshield.integrations.crewai import AgentShieldCrewHook
 from agentshield.integrations.llamaindex import AgentShieldLlamaHandler
 from agentshield.integrations.autogen import AgentShieldAutoGenGuard
 
-__version__ = "0.2.1"
+__version__ = "0.2.2"
 __all__ = [
     "AgentShieldRedactor",
     "RedactionResult",
