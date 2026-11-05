@@ -23,8 +23,8 @@ jobs:
         with:
           python-version: '3.12'
 
-      - name: Install pypa/build
-        run: python3 -m pip install build --user
+      - name: Install pypa/build (hash-pinned)
+        run: python3 -m pip install --require-hashes -r requirements-build.txt
 
       - name: Build a binary wheel and a source tarball
         run: python3 -m build

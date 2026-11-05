@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import asyncio
 import functools
 import inspect
@@ -6,7 +8,7 @@ from agentshield.redactor import AgentShieldRedactor, RedactionResult
 
 _default_redactor = AgentShieldRedactor()
 
-def _sanitize_value(val: Any, redactor: AgentShieldRedactor) -> Tuple_Any:
+def _sanitize_value(val: Any, redactor: AgentShieldRedactor) -> Any:
     """Recursively redacts secrets in strings, dicts, and lists."""
     if isinstance(val, str):
         return redactor.redact(val).clean_text
@@ -16,8 +18,6 @@ def _sanitize_value(val: Any, redactor: AgentShieldRedactor) -> Tuple_Any:
         sanitized = [_sanitize_value(item, redactor) for item in val]
         return type(val)(sanitized)
     return val
-
-Tuple_Any = Any
 
 def protect(
     func: Optional[Callable[..., Any]] = None,
