@@ -1,0 +1,58 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "agentshield"
+version = "0.2.1"
+description = "Enterprise Zero-Leak Secret Defense & Sandbox for Autonomous AI Agents (LangGraph, CrewAI, AutoGen)"
+readme = "README.md"
+authors = [
+    { name = "RitualDev Studio", email = "developer@ritualdev.com" },
+    { name = "Divyanshu Jethi", email = "divyanshujethi@ritualdev.com" }
+]
+license = { text = "MIT" }
+keywords = [
+    "ai-agents",
+    "agent-security",
+    "zero-leak",
+    "sandboxing",
+    "langchain",
+    "crewai",
+    "secret-redaction",
+    "llm-guardrails"
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Security",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence"
+]
+requires-python = ">=3.10"
+dependencies = []
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0.0",
+    "pytest-cov>=4.0.0",
+    "ruff>=0.1.0"
+]
+langchain = [
+    "langchain-core>=0.1.0"
+]
+
+[project.urls]
+Homepage = "https://ritualdev.in/agentshield"
+Documentation = "https://ritualdev.in/docs"
+TrustCenter = "https://ritualdev.in/trust"
+Repository = "https://github.com/RitualDev-Lab/agentshield-python"
+Playground = "https://ritualdev.in/playground"
+
+[tool.setuptools.packages.find]
+where = ["src"]
