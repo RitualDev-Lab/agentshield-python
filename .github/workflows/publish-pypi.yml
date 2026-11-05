@@ -29,6 +29,26 @@ jobs:
       - name: Build a binary wheel and a source tarball
         run: python3 -m build
 
+      - name: Generate CycloneDX SBOM
+        uses: anchore/sbom-action@66cbf4bc1f1c0d2edc94016e65bc221b6bb0ad6c # v0.24.3
+        with:
+          path: ./
+          format: 'cyclonedx-json'
+          output-file: 'dist/agentshield-python-cyclonedx.sbom.json'
+          artifact-name: 'agentshield-python-cyclonedx.sbom.json'
+          upload-artifact: true
+          upload-release-assets: false
+
+      - name: Generate SPDX SBOM
+        uses: anchore/sbom-action@66cbf4bc1f1c0d2edc94016e65bc221b6bb0ad6c # v0.24.3
+        with:
+          path: ./
+          format: 'spdx-json'
+          output-file: 'dist/agentshield-python-spdx.sbom.json'
+          artifact-name: 'agentshield-python-spdx.sbom.json'
+          upload-artifact: true
+          upload-release-assets: false
+
       - name: Store the distribution packages
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.0
         with:
@@ -58,4 +78,29 @@ jobs:
         uses: pypa/gh-action-pypi-publish@7245906fb61fa33a13554f9d5fb856fe61758086 # v1.12.4
         with:
           password: ${{ secrets.PYPI_API_TOKEN }}
-          skip-existing: true
+
+  create-release:
+    name: Create GitHub Release with SBOM Artifacts
+    needs:
+      - publish-to-pypi
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Download all the dists
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.0
+        with:
+          name: python-package-distributions
+          path: dist/
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@c062e08bd5328157348241fa0833b7d8b97943b7 # v2.0.8
+        with:
+          generate_release_notes: true
+          files: |
+            dist/*
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
