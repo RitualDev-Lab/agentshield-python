@@ -8,7 +8,7 @@
 [![Interactive Playground](https://img.shields.io/badge/Playground-Live%20Demo-00F59B?style=for-the-badge)](https://ritualdev.in/playground)
 [![Trust Center](https://img.shields.io/badge/Trust-SIG%20Lite%20%2F%20DPDP-00D4FF?style=for-the-badge)](https://ritualdev.in/trust)
 
-> Enterprise-grade Zero-Leak Secret Defense & Sandbox for Autonomous AI Agents built with LangGraph, CrewAI, AutoGen, Smolagents, and OpenAI Swarm.
+> Enterprise-grade Zero-Leak Secret Defense & Sandbox for Autonomous AI Agents built with LangGraph, CrewAI, AutoGen, LlamaIndex, and Smolagents.
 
 [Documentation](https://ritualdev.in/docs) • [Web Portal](https://ritualdev.in) • [Trust Center](https://ritualdev.in/trust) • [Issues](https://github.com/RitualDev-Lab/agentshield-python/issues)
 
@@ -16,14 +16,17 @@
 
 ---
 
-## ⚡ Why AgentShield for Python AI Agents?
+## ⚡ Key Features
 
-Autonomous AI coding agents frequently:
-1. Print or dump `/proc/self/environ` to inspect credentials.
-2. Leak raw `OPENAI_API_KEY`, `AWS_SECRET_ACCESS_KEY`, or database credentials into LLM completion prompts.
-3. Fall victim to prompt injection attacks attempting to exfiltrate `.env` files.
-
-`agentshield` intercepts, redacts, and cryptographically seals sensitive data with linear-time token verification before any byte leaves your runtime or enters an LLM prompt.
+- **`@shield.protect` Decorator**: Zero-boilerplate function and tool protection. Automatically intercepts arguments and return values.
+- **Framework Integrations**:
+  - **LangChain & LangGraph**: `AgentShieldCallbackHandler`
+  - **CrewAI**: `AgentShieldCrewHook`
+  - **LlamaIndex**: `AgentShieldLlamaHandler`
+  - **Microsoft AutoGen**: `AgentShieldAutoGenGuard`
+- **Zero-Leak Redaction**: 40+ credential types (OpenAI, Anthropic, AWS, GitHub, Stripe, Slack, private keys, `/proc/self/environ`).
+- **Environment Sanitization**: `sanitize_env()` replaces sensitive variables with virtual mock tokens.
+- **HMAC-SHA256 Audit Ledger**: Cryptographically seals every inspection with microsecond overhead.
 
 ---
 
@@ -33,70 +36,62 @@ Autonomous AI coding agents frequently:
 pip install agentshield
 ```
 
-Or install with LangChain support:
-
-```bash
-pip install "agentshield[langchain]"
-```
-
 ---
 
-## 🚀 Quickstart
+## 🚀 Usage Guide
 
-### 1. Zero-Leak Secret Redactor
+### 1. The `@shield.protect` Decorator
+
+Decorate any agent tool, custom function, or LLM wrapper:
 
 ```python
-from agentshield import AgentShieldRedactor
+from agentshield import shield
 
-redactor = AgentShieldRedactor()
+@shield.protect
+def deploy_infrastructure(target: str, config: str) -> str:
+    # Any incoming AWS keys or OpenAI keys in config are automatically masked
+    return f"Deployed {target} with token: AKIAIOSFODNN7EXAMPLE"
 
-agent_output = """
-Calling AWS deployment:
-AWS_ACCESS_KEY: AKIAIOSFODNN7EXAMPLE
-OPENAI_KEY: sk-1234567890abcdef1234567890abcdef
-Check /proc/self/environ
-"""
+# When executed:
+output = deploy_infrastructure("prod-cluster", "key=sk-1234567890abcdef1234567890abcdef")
+print(output)
+# -> "Deployed prod-cluster with token: [AGENTSHIELD_REDACTED:AWS_ACCESS_KEY:a1b2c3d4e5f6]"
+```
 
-result = redactor.redact(agent_output)
+For strict enforcement (raising `PermissionError` on leak):
 
-print(result.clean_text)
-# Output:
-# Calling AWS deployment:
-# AWS_ACCESS_KEY: [AGENTSHIELD_REDACTED:AWS_ACCESS_KEY:a1b2c3d4e5f6]
-# OPENAI_KEY: [AGENTSHIELD_REDACTED:OPENAI_KEY:9f8e7d6c5b4a]
-# Check [AGENTSHIELD_REDACTED:PROC_ENVIRON_READ:3c4d5e6f7a8b]
+```python
+from agentshield import protect
 
-print(f"Redacted {result.redacted_count} secrets in {result.latency_ms}ms")
-print(f"HMAC Audit Ledger Seal: {result.audit_hash}")
+@protect(strict=True)
+def sensitive_operation():
+    ...
 ```
 
 ---
 
 ### 2. LangGraph & LangChain Integration
 
-Attach `AgentShieldCallbackHandler` to your agent pipeline:
-
 ```python
 from langchain_openai import ChatOpenAI
-from agentshield.integrations.langchain import AgentShieldCallbackHandler
+from agentshield import AgentShieldCallbackHandler
 
-shield = AgentShieldCallbackHandler()
+shield_handler = AgentShieldCallbackHandler()
 
 llm = ChatOpenAI(
     model="gpt-4o",
-    callbacks=[shield]
+    callbacks=[shield_handler]
 )
-
-# All outgoing prompts and tool calls are automatically audited and sanitized
+# Outgoing prompts and tool invocations are inspected and sanitized in real time
 ```
 
 ---
 
-### 3. CrewAI Safety Hook
+### 3. CrewAI Guardrail Hook
 
 ```python
-from crewai import Agent, Task, Crew
-from agentshield.integrations.crewai import AgentShieldCrewHook
+from crewai import Task
+from agentshield import AgentShieldCrewHook
 
 hook = AgentShieldCrewHook()
 
@@ -105,33 +100,38 @@ task = Task(
     expected_output="Deployment summary"
 )
 
-# Pre-execution and post-execution hooks sanitize credentials
 hook.before_task_execution(task)
 ```
 
 ---
 
-### 4. Sandboxed Subprocess Execution
-
-Prevent child processes spawned by agents from reading raw host environment secrets:
+### 4. LlamaIndex Callback Handler
 
 ```python
-from agentshield import AgentShieldSandbox
+from llama_index.core import Settings
+from agentshield import AgentShieldLlamaHandler
 
-sandbox = AgentShieldSandbox()
-
-# Executes in an isolated environment with credentials virtualized to mock tokens
-result = sandbox.run_command(["python", "untrusted_agent_script.py"], timeout=15)
-print(result.clean_text)
+Settings.callback_manager.add_handler(AgentShieldLlamaHandler())
 ```
 
 ---
 
-## 🔒 Security & Statutory Compliance
+### 5. Microsoft AutoGen Message Guard
 
-- **Zero Cloud Telemetry**: Runs 100% locally with `AGENTSHIELD_AIR_GAPPED=1`.
+```python
+from agentshield import AgentShieldAutoGenGuard
+
+guard = AgentShieldAutoGenGuard()
+clean_message = guard.filter_message(incoming_message)
+```
+
+---
+
+## 🔒 Security & Compliance
+
+- **Zero Cloud Exfiltration**: Runs 100% locally with `AGENTSHIELD_AIR_GAPPED=1`.
 - **Pre-filled SIG Lite / CAIQ**: Download the Vendor Risk Assessment Packet at [ritualdev.in/trust](https://ritualdev.in/trust).
-- **Statutory Controls**: Architected for **India DPDP Act 2023**, **EU GDPR**, and **SOC 2 Type II**.
+- **Statutory Alignment**: Designed for **India DPDP Act 2023**, **EU GDPR**, and **SOC 2 Type II**.
 
 ---
 
