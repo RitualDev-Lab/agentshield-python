@@ -8,8 +8,8 @@ version = "0.2.2"
 description = "Enterprise Zero-Leak Secret Defense & Sandbox for Autonomous AI Agents (LangGraph, CrewAI, AutoGen, LlamaIndex)"
 readme = "README.md"
 authors = [
-    { name = "RitualDev Studio", email = "developer@ritualdev.com" },
-    { name = "Divyanshu Jethi", email = "divyanshujethi@ritualdev.com" }
+    { name = "RitualDev Studio", email = "developer@ritualdev.in" },
+    { name = "RitualDev Security", email = "security@ritualdev.in" }
 ]
 license = { text = "MIT" }
 keywords = [
