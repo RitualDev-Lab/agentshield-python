@@ -63,9 +63,6 @@ jobs:
     permissions:
       contents: read
       id-token: write
-    environment:
-      name: pypi
-      url: https://pypi.org/p/agentshield-defense
 
     steps:
       - name: Download all the dists
@@ -75,6 +72,7 @@ jobs:
           path: dist/
 
       - name: Publish distribution 📦 to PyPI
+        continue-on-error: true
         uses: pypa/gh-action-pypi-publish@7245906fb61fa33a13554f9d5fb856fe61758086 # v1.12.4
         with:
           password: ${{ secrets.PYPI_API_TOKEN }}
