@@ -1,0 +1,37 @@
+{% set name = "agentshield-defense" %}
+{% set version = "0.2.2" %}
+
+package:
+  name: {{ name|lower }}
+  version: {{ version }}
+
+source:
+  url: https://files.pythonhosted.org/packages/source/{{ name[0] }}/{{ name }}/agentshield_defense-{{ version }}.tar.gz
+  sha256: b8e7e8cf113ae7043f94203ea0a968ee6442efb861ff94573d4f3a99421cca82
+
+build:
+  noarch: python
+  script: {{ PYTHON }} -m pip install . -vv --no-deps --no-build-isolation
+  number: 0
+
+requirements:
+  host:
+    - python >=3.10
+    - setuptools >=61.0
+    - wheel
+    - pip
+  run:
+    - python >=3.10
+
+test:
+  imports:
+    - agentshield
+  commands:
+    - pip check
+
+about:
+  home: https://ritualdev.in/agentshield
+  summary: Enterprise Zero-Leak Secret Defense & Sandbox for Autonomous AI Agents
+  license: MIT
+  license_file: LICENSE
+  dev_url: https://github.com/RitualDev-Lab/agentshield-python
