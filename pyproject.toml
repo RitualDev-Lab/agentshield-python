@@ -32,7 +32,8 @@ classifiers = [
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
     "Topic :: Security",
-    "Topic :: Scientific/Engineering :: Artificial Intelligence"
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Typing :: Typed"
 ]
 requires-python = ">=3.10"
 dependencies = []
@@ -47,6 +48,18 @@ langchain = [
     "langchain-core>=1.8.3",
     "langgraph>=1.2.23"
 ]
+crewai = [
+    "crewai>=0.80.0"
+]
+autogen = [
+    "pyautogen>=0.3.0"
+]
+llamaindex = [
+    "llama-index-core>=0.11.0"
+]
+all = [
+    "agentshield-defense[langchain,crewai,autogen,llamaindex]"
+]
 
 [project.urls]
 Homepage = "https://ritualdev.in/agentshield"
@@ -57,3 +70,6 @@ Playground = "https://ritualdev.in/playground"
 
 [tool.setuptools.packages.find]
 where = ["src"]
+
+[tool.setuptools.package-data]
+agentshield = ["py.typed"]
